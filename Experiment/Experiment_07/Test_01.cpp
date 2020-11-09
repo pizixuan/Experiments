@@ -121,5 +121,6 @@ void findPath(){
 int main()
 {
     findPath();
+    printf("提交！\n");
     return 0;
 }

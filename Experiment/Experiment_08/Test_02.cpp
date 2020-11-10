@@ -1,13 +1,13 @@
-/*  假设二叉树中的每个节点值为单个字符，采用二叉链存储结构存储，设计一个算法求二叉树b中最小值的节点值。
-     二叉树为：N(a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))
-
-    遇到一个字母就存下来，遇到一个'('就表示为之前一个结点的左孩子，遇到','表示为前一个节点的右孩子，
-    遇到')'栈顶节点的子树已经创建完毕，则退栈栈顶元素
+/*
+    假设二叉树中的每个节点值为单个字符，采用二叉链存储结构存储，
+    设计一个算法把二叉树b的左右子树进行交换，要求不破坏原二叉树。
+    二叉树为：N( a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))
 */
 
 #include <stdio.h>
 #include <malloc.h>
 #define MAXSIZE 10
+
 typedef char ElemType;
 typedef struct node{
     ElemType data;
@@ -15,12 +15,11 @@ typedef struct node{
     struct node * rchild;
 }BTNode;
 
-ElemType createBTree(BTNode * &t, ElemType * str){
+void createBTree(BTNode * &t, ElemType * str){
     BTNode * store[MAXSIZE];        //顺序栈数组
     BTNode * temp;                  //用于创建二叉树
     int top = -1;                   //栈顶指针
     int order = 0;                  //用于判断连接指令
-    ElemType minData = 'z';
     t = NULL;
     for (int i = 0; str[i] != '\0'; i++){
         switch (str[i]){
@@ -38,8 +37,6 @@ ElemType createBTree(BTNode * &t, ElemType * str){
             default :
                 temp = (BTNode *)malloc(sizeof(BTNode));
                 temp->data = str[i];
-                if (temp->data < minData)
-                    minData = temp->data;
                 temp->lchild = temp->rchild = NULL;
                 if (t == NULL)
                     t = temp;
@@ -51,13 +48,42 @@ ElemType createBTree(BTNode * &t, ElemType * str){
                 }
         }
     }
-    return minData;
+}
+
+BTNode * filpBTree(BTNode * &t){
+    if (t != NULL){
+        BTNode * temp = (BTNode *)malloc(sizeof(BTNode));       //创建一个结点
+        temp->data = t->data;
+        temp->lchild = filpBTree(t->rchild);
+        temp->rchild = filpBTree(t->lchild);
+        return temp;
+    }
+}
+
+void dispBTree(BTNode * t){
+    if (t != NULL){
+        printf("%c", t->data);
+        if (t->lchild != NULL || t->rchild != NULL){
+            printf("(");
+            dispBTree(t->lchild);
+            if (t->rchild != NULL)
+                printf(",");
+            dispBTree(t->rchild);
+            printf(")");
+        }
+    }
 }
 
 int main(){
-    BTNode * tree;
+    BTNode * oldTree, * newTree;
     ElemType str[] = "N(a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))";
-    printf("二叉树最小节点值为：\n");
-    printf("%c\n", createBTree(tree, str));
+    createBTree(oldTree, str);
+    printf("创建的原树：\n");
+    dispBTree(oldTree);
+    printf("\n翻转后的新树：\n");
+    newTree = filpBTree(oldTree);
+    dispBTree(newTree);
+    printf("\n翻转后的原树：\n");
+    dispBTree(oldTree);
     return 0;
 }

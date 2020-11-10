@@ -81,7 +81,6 @@ void numsOfBTreeNode(BTNode * &t, int &n, int &leafn){     //求树的高度
         }                
         numsOfBTreeNode(t->lchild, n, leafn);
         numsOfBTreeNode(t->rchild, n, leafn);
-
     }
 }
 
@@ -102,14 +101,17 @@ void outPut(){
     int leafNum = 0;
     int h = 0;      //树的高度
     ElemType str[] = "N(a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))";
-    createBTree(tree, str);
+    
     printf("创建的原树：");
+    createBTree(tree, str);
     dispBTree(tree);
+    
     printf("\n二叉树的所有叶子节点为：");
     numsOfBTreeNode(tree, num, leafNum);
     printf("\n二叉树的叶子节点数量为：%d", leafNum);
     printf("\n二叉树的节点数量：%d", num);
     maxWidthOfBTree(tree, h);
+    
     int maxWidth = 0;
     for (int i = 1; Width[i].wid != 0;i++){
         if (Width[i].wid > maxWidth)

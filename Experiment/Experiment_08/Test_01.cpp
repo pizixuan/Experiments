@@ -55,25 +55,10 @@ ElemType createBTree(BTNode * &t, ElemType * str){
     return minData;
 }
 
-void dispBTree(BTNode * t){
-    if (t != NULL){
-        printf("%c", t->data);
-        if (t->lchild != NULL || t->rchild != NULL){
-            printf("(");
-            dispBTree(t->lchild);
-            if (t->rchild != NULL)
-                printf(",");
-            dispBTree(t->rchild);
-            printf(")");
-        }
-    }
-}
-
 int main(){
     BTNode * tree;
     ElemType str[] = "N(a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))";
     printf("二叉树最小节点值为：\n");
     printf("%c\n", createBTree(tree, str));
-    dispBTree(tree);
     return 0;
 }

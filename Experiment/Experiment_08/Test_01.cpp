@@ -38,6 +38,7 @@ ElemType createBTree(BTNode * &t, ElemType * str){
             default :
                 temp = (BTNode *)malloc(sizeof(BTNode));
                 temp->data = str[i];
+                printf("%c", temp->data);
                 if (temp->data < minData)
                     minData = temp->data;
                 temp->lchild = temp->rchild = NULL;
@@ -47,7 +48,7 @@ ElemType createBTree(BTNode * &t, ElemType * str){
                     if (order == 1)
                         store[top]->lchild = temp;
                     if (order == 2)
-                        store[top]->lchild = temp;
+                        store[top]->rchild = temp;
                 }
         }
     }
@@ -61,7 +62,7 @@ void dispBTree(BTNode * t){
             printf("(");
             dispBTree(t->lchild);
             if (t->rchild != NULL)
-            printf(",");
+                printf(",");
             dispBTree(t->rchild);
             printf(")");
         }
@@ -72,6 +73,7 @@ int main(){
     BTNode * tree;
     ElemType str[] = "N(a(n,C(h(H,g))),K(o(,U(I,v)),e(r(s,i),t(y))))";
     printf("二叉树最小节点值为：\n");
-    printf("%c", createBTree(tree, str));
+    printf("%c\n", createBTree(tree, str));
+    dispBTree(tree);
     return 0;
 }

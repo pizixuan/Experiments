@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .picture1{
+            width: 200px;
+            height: 300px;
+        }
+        .picture2{
+            width: 400px;
+            height: 600px;
+        }
+    </style>
+    <script>
+        function onmouseover1(obj){
+            obj.src = "images/2.jpg"
+            obj.className = "picture2";
+            document.getElementById("description").innerHTML = "鼠标悬浮";
+        }
+        function onmouseout1(obj){
+            obj.src = "images/1.jpg"
+            obj.className = "picture1";
+            document.getElementById("description").innerHTML = "鼠标移开";
+        }
+    </script>
+</head>
+<body>
+    <img src="images/1.jpg" class="picture1" onmouseover="onmouseover1(this)" onmouseout="onmouseout1(this)">
+    <p id="description" style="font-size: 20px;">鼠标移开</p>
+</body>
+</html>

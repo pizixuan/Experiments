@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<script>
+    function f1() {
+        var str = document.getElementById("idNum").value;
+        if (str.length != 18) {
+            alert("长度应为18位!");
+            return 0;
+        }
+        for (i = 0; i < 17; i++) {
+            if (i <= 16) { //前17位
+                if (!(str.charAt(i) >= 0 && str.charAt(i) <= 9)) {
+                    alert("前17位应为数字!");
+                    return 0;
+                } else {
+                    if (str.charAt(17) != "x" && str.charAt(17) != "X" && !(str.charAt(17) >= 0 && str.charAt(17) <= 9)) {
+                        alert("第18位为数字或 x（或 X）!");
+                        return 0;
+                    }
+                }
+            }
+        }
+    }
+</script>
+
+<body>
+    <input name="idCardNum" type="text" id="idNum" size="20" maxlength="18" /><br><br />
+    <input type="button" value="提交" size="10" onclick="f1()">
+</body>
+
+</html>

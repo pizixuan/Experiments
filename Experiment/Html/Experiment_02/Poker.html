@@ -1,0 +1,144 @@
+<!-- 用Javascript制作小游戏：“诈金花”。要求如下：
+    （1）参与者：游戏者为甲乙两人；
+    （2）发牌规则：随机发牌，牌为黑桃、红桃、方块、梅花4种花色，从2、3、……、K、A，每人三种，不能重复（共52张牌）。
+    （3）牌型：
+        豹子：三张点相同的牌。例：AAA、222。        
+        顺金（同花顺）：花色相同的顺子。例：黑桃456、红桃789。最大的顺金为花色相同的QKA，最小的顺金为花色相同的A23。
+        金花（金花）：花色相同，非顺子。例：黑桃368，方块145。
+        顺子（拖拉机）：花色不同的顺子。例：黑桃5红桃6方块7。最大的顺子为花色不同的QKA，最小的顺子为花色不同的A23。
+        对子：两张点数相同的牌。例：223，334。
+        单张：三张牌不组成任何类型的牌。
+        特殊：花色不同的235。
+    （4）比较：
+        豹子 > 顺金 > 金花 > 顺子 > 对子 > 单张
+        豹子、金花、对子、单张的比较，按照顺序比点的规则比较大小。 牌点从大到小为：A、K、Q、J、10、9、8、7、6、5、4、3、2，各花色不分大小；
+        顺金、顺子按照顺序比点。AKQ> KQJ>…>32A。
+        特殊牌型在普通时比较大小按单张牌型来算。当豹子存在时，特殊牌型（非同花的235） > 豹子。
+        同种牌型，对子时比对子的大小，其它牌型比最大的牌张，如最大牌张相同则比第二大的张，以此类推。当两牌型大小完全相同时，提示二人打平。 -->
+
+
+        <!-- 
+            花色 相同 的 豹子（0）
+            花色 不同 的 豹子（1）
+            花色 相同 的 顺子（2）
+            花色 相同 的 非顺子（3）
+            花色 不同 的 顺子（4）
+            花色 相同 的 对子（5）
+            花色 不同 的 对子（6）
+            其他（7）
+            花色 不同 的 235（8）
+        -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url(Poker.css);
+    </style>
+</head>
+
+<body onload="init()">
+    <embed src="music/battle.mp3" id="music" width="0" height="0"> </embed>
+    <div id="container" class="container">
+        <!-- 玩家一区     -->
+        <div id="player_1" class="player">
+            <div id="playerAvatarArea_1" class="playerAvatarArea">
+                <img src="images/1.jpg" alt="玩家一" id="playerAvatar_1" class="playerAvatar">
+            </div>
+            <div id="pokerArea_1" class="pokerArea" align="left">
+                <img src="images/null.png" id="player_1_pokerCard_1" class="pokerCard_1" onmouseover="front(this)" onmouseout="reverse(this)">
+                <img src="images/null.png" id="player_1_pokerCard_2" class="pokerCard_2" onmouseover="front(this)" onmouseout="reverse(this)">
+                <img src="images/null.png" id="player_1_pokerCard_3" class="pokerCard_3" onmouseover="front(this)" onmouseout="reverse(this)">
+            </div>
+
+            <!-- 玩家操作区 -->
+            <div id="playerOperateArea_1" class="playerOperateArea">
+                <!-- 下注 -->
+                <input type="button" value="下注" id="player_1_bet" class="playerButton" onclick="addChipsButton(this)">
+
+                <!-- 下注数量区 -->
+                <div id="player_1_betChips" class="playerButton">
+                    <!-- 下注数量 -->
+                    <input type="text" id="player_1_numberOfChips" class="numberOfChips" value="0">
+                    <div id="player_1_modifyChipsArea" class="modifyChipsArea">
+                        <input type="button" value="+" id="player_1_increaseChips" class="modifyChips" onclick="increaseChips(this)">
+                        <input type="button" value="-" id="player_1_decreaseChips" class="modifyChips" onclick="decreaseChips(this)">
+                    </div>
+                </div>
+
+                <input type="button" value="开牌" id="player_1_folp" class="playerButton" style="clear:both;" onclick="flop(this)">
+                <input type="button" value="弃牌" id="player_1_fold" class="playerButton" onclick="flod(this)">
+            </div>
+        </div>
+
+        <!-- 展示区 -->
+        <div id="screen">
+            <br>
+            <p id="round">
+                <!-- Round -->
+            </p>
+            <div id="screenSituation">
+                <!-- 战况 -->
+                <input type="text" id="player_1_ownChips" class="chips" readonly="readonly" value="100">    
+                <input type="text" id="chipsPool" readonly="readonly" value="0">
+                <input type="text" id="player_2_ownChips" class="chips" readonly="readonly" value="100">    
+
+                <!-- 玩家一结果 -->
+                <p id="player_1_result">
+                    <!-- <br>&nbsp;&nbsp;
+                    获胜！ -->
+                </p>
+                <!-- 玩家二结果 -->
+                <p id="player_2_result">
+                    <!-- <br>&nbsp;&nbsp;
+                    获胜！ -->
+                </p>
+            </div>
+            <div id="mainOperateArea">
+                <!-- 主操作区 -->
+                <!-- 开始 -->
+                <input type="button" value="" id="mainOperateButton" onclick="begin(this)">
+            </div>
+        </div>
+
+        <!-- 玩家二区     -->
+        <div id="player_2" class="player">
+            <div id="playerAvatarArea_2" class="playerAvatarArea">
+                <img src="images/2.jpg" alt="玩家一" id="playerAvatar_2" class="playerAvatar">
+            </div>
+            <div id="pokerArea_2" class="pokerArea" align="left">
+                <img src="images/null.png" id="player_2_pokerCard_1" class="pokerCard_1" onmouseover="front(this)" onmouseout="reverse(this)">
+                <img src="images/null.png" id="player_2_pokerCard_2" class="pokerCard_2" onmouseover="front(this)" onmouseout="reverse(this)">
+                <img src="images/null.png" id="player_2_pokerCard_3" class="pokerCard_3" onmouseover="front(this)" onmouseout="reverse(this)">
+            </div>
+
+            <!-- 玩家操作区 -->
+            <div id="playerOperateArea_2" class="playerOperateArea">
+                <!-- 下注 -->
+                <input type="button" value="下注" id="player_2_bet" class="playerButton" onclick="addChipsButton(this)">
+
+                <!-- 下注数量区 -->
+                <div id="player_2_betChips" class="playerButton">
+                    <!-- 下注数量 -->
+                    <input type="text" id="player_2_numberOfChips" class="numberOfChips" value="0">
+                    <div id="player_2_modifyChipsArea" class="modifyChipsArea">
+                        <input type="button" value="+" id="player_2_increaseChips" class="modifyChips" onclick="increaseChips(this)">
+                        <input type="button" value="-" id="player_2_decreaseChips" class="modifyChips" onclick="decreaseChips(this)">
+                    </div>
+                </div>
+
+                <input type="button" value="开牌" id="player_2_folp" class="playerButton" style="clear:both;" onclick="flop(this)">
+                <input type="button" value="弃牌" id="player_2_fold" class="playerButton" onclick="flod(this)">
+            </div>
+        </div>
+    </div>
+</body>
+
+<script src="Poker.js">
+</script>
+
+</html>

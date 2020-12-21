@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form name="form1" method="post" action="index.html">
+        姓名：
+        <input name="name" type="text" size="15" />
+        <br>
+        密码：
+        <input name="age" type="text" size="15" maxlength="2" />
+    </form>
+
+    <form action="index.html" method="POST" name="form2">
+        性别：
+        <input name="radiobutton" type="radio" value="radiobutton" checked="checked" />
+        男
+        <input name="radiobutton" type="radio" value="radiobutton" />
+        女
+    </form>
+
+    <form action="index.html" method="POST" name="form3">
+        爱好：
+        <input name="checkbox" type="checkbox" value="checkbox"  />
+        篮球
+        <input name="checkbox1" type="checkbox" value="checkbox" />
+        足球
+        <input name="checkbox2" type="checkbox" value="checkbox" />
+        排球
+        <input name="checkbox3" type="checkbox" value="checkbox" />
+        乒乓球
+    </form>
+
+    <form action="index.html" method="POST" name="form4">
+        地区：
+        <select name="select">
+            <option value="20岁" selected="selected">20岁</option>
+            <option value="21岁">21岁</option>
+            <option value="22岁">22岁</option>
+            <option value="23岁">23岁</option>
+            <option value="24岁">24岁</option>
+            <option value="25岁">25岁</option>
+        </select>
+    </form>
+
+    <form action="index.html" method="POST" name="form5">
+        自我介绍:
+        <p></p>
+        <textarea name="textarea" cols="30" rows="10"></textarea>
+    </form>
+
+    <form action="index.html" method="POST" name="form6">
+        <input type="submit" name="Submit1" value="注册" />
+        <input type="reset" name="Submit2" value="重置" />
+    </form>
+
+</body>
+</html>

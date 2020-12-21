@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .mouseOn:hover {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <p id="list">
+    </p>
+    <script>
+        function list() {
+            var disp = "<table border='1px' height='100' align=center>";
+            for (i = 0; i <= 100; i++) { //101行
+                if (i == 0)
+                    disp += "<tr bgcolor='red' color='white'>";
+                else if (i % 2 != 0) //奇数行
+                    disp += "<tr class='mouseOn'>";
+                else if (i % 2 == 0) //偶数行
+                    disp += "<tr bgcolor='#e0e0e0' class='mouseOn'>";
+                for (j = 0; j < 2; j++) { //2列
+                    if (i == 0 && j == 0)
+                        disp += "<td width='300' align=center>" + "i" + "</td>";
+                    else if (i == 0 && j == 1)
+                        disp += "<td width='300' align=center>" + "i^2" + "</td>";
+                    else if (j == 0)
+                        disp += "<td width='150' align=center>" + i + "</td>";
+                    else if (j == 1)
+                        disp += "<td width='150' align=center>" + i * i + "</td>";
+                }
+                disp += "</tr>"
+            }
+            disp += "</table>";
+            return disp;
+        }
+        document.getElementById("list").innerHTML = list();
+    </script>
+</body>
+</html>

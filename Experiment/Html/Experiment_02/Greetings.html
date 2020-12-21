@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        function greetings() {
+            var beginTime = new Date(); //现在的时间
+            var endTime = new Date(beginTime.getFullYear(), beginTime.getMonth(), beginTime.getDate(), 24, 0, 0);
+            var time = endTime.getTime() - beginTime.getTime();
+            var hours = parseInt(time / 1000 / 60 / 60);
+            if (hours >= 12 && hours <= 18)
+                window.status = "早上好";
+            else if (hours >= 6 && hours < 12)
+                window.status = "下午好";
+            else
+                window.status = "晚上好";
+        }
+    </script>
+</head>
+
+<body onload="greetings()">
+</body>
+
+</html>

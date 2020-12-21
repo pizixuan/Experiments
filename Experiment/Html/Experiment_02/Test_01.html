@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>求和</title>
+</head>
+<script>
+    function f1(){
+        var count = 1;      //控制循环次数
+        value = -1;          //控制正负
+        num1 = 1;           //第一个数字
+        num2 = 2;           //第二个数字
+        temp = 0;           //用于赋值
+        sum = 0;            //最后的结果
+        for (count = 1; count <= 20; count++){
+            sum += value * -1 * num1 * num2;
+            temp = num1;
+            num1 = num2;
+            num2 = temp + num1;
+        }
+        document.getElementById("description").innerHTML += " "+sum;
+    }
+    function f2(){
+        document.getElementById("description").innerHTML = "S=1*2-2*3+3*5-5*8+8*13-13*21+……（前20项的和）结果是";
+    }
+</script>
+<body onload="f2()">
+    <p id="description">
+
+    </p>
+    <br>
+    <input type="button" width="200px" height="50px" value="计算" onclick="f1()">
+</body>
+</html>

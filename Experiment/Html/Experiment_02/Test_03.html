@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮箱</title>
+
+    <script>
+        function f1(){
+            var chc = document.getElementById("Em").value;
+            numAt = 0;              //判断是否存在 @
+            numPoint = 0;           //判断是否存在 .
+            for(i = 0; i < chc.length; i++){
+                console.log("2");
+                if(numAt == 0){
+                    if(((chc.charAt(i) >= "A" && chc.charAt(i) <= "Z") || (chc.charAt(i) >= "a" && chc.charAt(i) <= "z") || (chc.charAt(i) >= "0" && chc.charAt(i) <= "9") || chc.charAt(i) == "_")){
+                        continue;
+                    }
+                    else{
+                        alert("@ 前只能包含字母、数字、下划线");
+                        break;
+                    }                        
+                }   
+                console.log("3");
+                if(chc.charAt(0) == "@"){           //第一个不能为 @
+                    alert("第一个不能为 @");
+                    break;
+                }
+                if(numAt > 1 || numPoint > 1){      //有且仅有一个 @ 或 .
+                    alert("有且仅有一个 @ 或 . ");
+                    break;
+                }
+                if(numPoint > numAt){               // . 不能在 @ 前面
+                    alert(". 不能在 @ 前面");       
+                    break;
+                }
+                if(chc.charAt(i) == "@")            //存在 @ 时 numAt + 1
+                    numAt += 1;
+                if(chc.charAt(i) == ".")            //存在 . 时 numPoint + 1
+                    numPoint += 1;
+                if(chc.charAt(i) == "@" && chc.charAt(i+1) == "."){     // @ 必须在 . 前且至少间隔1个字符
+                    alert("@ 必须在 . 前且至少间隔1个字符");
+                    break;
+                }
+                if(chc.charAt(i) == "." && i == chc.length - 1){        //. 不能为最后一个字符
+                    alert(". 不能为最后一个字符");
+                    break;
+                }
+                                     
+            }
+        }
+    </script>
+</head>
+<body>
+    <form name="form1" method="post" action="index.html">
+        邮箱:
+        <input name="emali" type="text" size="15" value="" id="Em" /><br />
+        密码:
+        <input name="password" type="password" size="15" /><br><br />
+        <input name="submit" type="button" value="提交" size="5" onclick="f1()">
+    </form>
+</body>
+</html>
+

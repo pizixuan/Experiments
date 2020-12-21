@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container {
+            width: 200px;
+            height: 335px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        #resultArea {
+            width: 95%;
+            height: 50px;
+            margin-left: 1px;
+            background-color: white;
+        }
+
+        .row {
+            width: 100%;
+            height: 50px;
+            margin: 0 auto;
+            background-color: white;
+        }
+
+        .clear {
+            width: 100px;
+            height: 50px;
+            margin-top: 10px;
+            float: left;
+        }
+
+        .num {
+            width: 50px;
+            height: 50px;
+            float: left;
+            margin-top: 5px;
+        }
+    </style>
+    <script>
+        function addNum(obj) { //不能有连续两个运算符
+            var pointNum = 0; //最后一个小数点和运算符间的小数点个数
+            var textInBox = document.getElementById("result").value; //输出框的值
+            var textInButton = obj.value; //按键的值
+            for (var i = 0; i < textInBox.length; i++) {
+                if (textInBox.charAt(i) == ".")
+                    pointNum += 1;
+                else if (textInBox.charAt(i) == "+" || textInBox.charAt(i) == "-" || textInBox.charAt(i) == "*" ||
+                    textInBox.charAt(i) == "/")
+                    pointNum -= 1;
+            }
+            if (textInButton == "." && pointNum != 0) {
+                var res = document.getElementById("result");
+                res.value = textInBox;
+                return;
+            }
+
+            if ((textInBox.charAt(textInBox.length - 1) == "+" || textInBox.charAt(textInBox.length - 1) == "-" ||
+                    textInBox.charAt(textInBox.length - 1) == "*" || textInBox.charAt(textInBox.length - 1) == "/") &&
+                (textInButton == "+" || textInButton == "-" || textInButton == "*" || textInButton == "/")) {
+                var res = document.getElementById("result");
+                res.value = textInBox;
+                return;
+            }
+
+            if (textInBox == "0" && (textInButton >= "0" && textInButton <=
+                "9")) { //如果输出框为 0，且输入的是数字可直接替代   如果是其他则可以加在后面
+                var textAfterPlus = textInButton;
+            } else if (textInBox.charAt(textInBox.length - 1) == "." && textInButton == ".") { //连续两个小数点只显示一个
+                textAfterPlus = textInBox;
+            } else {
+                var textAfterPlus = textInBox + textInButton;
+            }
+            var res = document.getElementById("result");
+            res.value = textAfterPlus;
+        }
+
+        function calculator() {
+            var res = document.getElementById("result");
+            res.value = eval(document.getElementById("result").value);
+        }
+
+        function clearLastOne() {
+            var textInBox = document.getElementById("result").value; //输出框的值
+            if (textInBox.length == 1)
+                textInBox = "0";
+            else
+                textInBox = textInBox.substring(0, textInBox.length - 1);
+            var res = document.getElementById("result");
+            res.value = textInBox;
+        }
+
+        function clearAll() {
+            var textInBox = document.getElementById("result").value; //输出框的值
+            textInBox = "0";
+            var res = document.getElementById("result");
+            res.value = textInBox;
+        }
+    </script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="resultArea">
+            <input type="text" id="result" class="row" readonly="readonly" value="0" style="text-align: right;">
+        </div>
+        <div class="row">
+            <input type="button" class="clear" value="AC" onclick="clearAll()">
+            <input type="button" class="clear" value="C" onclick="clearLastOne()">
+        </div>
+        <div class="row" style="clear: both;">
+            <input type="button" value="7" class="num" onclick="addNum(this)">
+            <input type="button" value="8" class="num" onclick="addNum(this)">
+            <input type="button" value="9" class="num" onclick="addNum(this)">
+            <input type="button" value="+" class="num" onclick="addNum(this)">
+        </div>
+        <div class="row" style="clear: both;">
+            <input type="button" value="4" class="num" onclick="addNum(this)">
+            <input type="button" value="5" class="num" onclick="addNum(this)">
+            <input type="button" value="6" class="num" onclick="addNum(this)">
+            <input type="button" value="-" class="num" onclick="addNum(this)">
+        </div>
+        <div class="row" style="clear: both;">
+            <input type="button" value="1" class="num" onclick="addNum(this)">
+            <input type="button" value="2" class="num" onclick="addNum(this)">
+            <input type="button" value="3" class="num" onclick="addNum(this)">
+            <input type="button" value="*" class="num" onclick="addNum(this)">
+        </div>
+        <div class="row" style="clear: both;">
+            <input type="button" value="0" class="num" onclick="addNum(this)">
+            <input type="button" value="." class="num" onclick="addNum(this)">
+            <input type="button" value="=" class="num" onclick="calculator()">
+            <input type="button" value="/" class="num" onclick="addNum(this)">
+        </div>
+    </div>
+</body>
+
+</html>

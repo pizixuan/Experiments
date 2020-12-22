@@ -541,7 +541,9 @@ function checkout() { //结算
     player_2_ownChips_num = parseInt(player_2_ownChips.value);
     if (judgement == 0) { //平局
         player_1_ownChips_num = player_1_ownChips_num + Math.floor(chipsPool_num / 2);
+        player_1_ownChips.value = player_1_ownChips_num;
         player_2_ownChips_num = player_2_ownChips_num + Math.floor(chipsPool_num / 2);
+        player_2_ownChips.value = player_2_ownChips_num;
     } else if (judgement == 1){ //玩家一获胜
         player_1_ownChips_num = player_1_ownChips_num + chipsPool_num;
         player_1_ownChips.value = player_1_ownChips_num;

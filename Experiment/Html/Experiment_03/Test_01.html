@@ -1,0 +1,43 @@
+<!--
+    用Javascript创建50行4列的表格，
+    要求奇数行背景色为白色，偶数行背景色为#123456，
+    鼠标经过的行背景色为黄色，鼠标移出时背景色恢复为原有背景。
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .mouseOn:hover {
+            background-color: yellow;
+        }
+    </style>
+</head>
+
+<body>
+    <p id="list">
+    </p>
+    <script>
+        function list() {
+            var disp = "<table border='1px' height='100' align=center>";
+            for (i = 1; i <= 50; i++) { //50行
+                if (i % 2 != 0) //奇数行
+                    disp += "<tr bgcolor='white' class='mouseOn' >";
+                else //偶数行
+                    disp += "<tr bgcolor='#123456' class='mouseOn'>";
+                for (j = 0; j < 4; j++) //4列
+                    disp += "<td width='150' align=center>" +"第" + i + "行" + "第" + j + "列" + "</td>";
+                disp += "</tr>"
+            }
+            disp += "</table>";
+            return disp;
+        }
+        document.getElementById("list").innerHTML = list();
+    </script>
+</body>
+</html>

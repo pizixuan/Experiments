@@ -1,0 +1,46 @@
+<!--
+    创建一个南昌航空大学的链接，要求链接的字体颜色为蓝色，无下划线，字体大小12px；
+    访问后颜色为紫色，无下划线，字体大小12px；
+    激活状态下颜色为绿色，有下划线，字体大小14px；
+    鼠标经过时字体颜色为红色，有下划线，字体大小14px。
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        a:link {
+            font-size: 12px;
+            text-decoration: none;
+            color:blue;
+        }/* 未访问链接*/
+           
+        a:visited {
+            font-size: 12px;
+            text-decoration: underline;
+            color: purple;
+        }/* 已访问链接 */
+
+        a:hover {
+            font-size: 14px;
+            text-decoration: underline;
+            color: red;
+        }/* 鼠标移动到链接上 */
+        
+        a:active {
+            font-size: 14px;
+            text-decoration: underline;
+            color: green;
+        }/* 鼠标点击时 */
+    </style>
+</head>
+
+<body>
+    <a href="#" id="Nchu">南昌航空大学</a>
+</body>
+
+</html>

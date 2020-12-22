@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #container {
+            width: 800px;
+            text-align: center;
+            margin: 0 auto;
+            background-color: palevioletred;
+        }
+
+        .logo {
+            width: 800px;
+            height: 100px;
+            background-color: powderblue;
+        }
+
+        #nav {
+            width: 800px;
+            height: 50px;
+            font-size: 25px;
+            color: white;
+            background-color: slategray;
+        }
+
+        #nav ul {
+            display: inline;
+            list-style-type: none;
+        }
+
+        #nav ul li {
+            display: block;
+            width: 200px;
+            height: 50px;
+            float: left;
+            line-height: 50px;
+        }
+
+        #nav ul a {
+            width: 200px;
+            height: 50px;
+            text-decoration: none;
+            color: white;
+            display: table;
+        }
+
+        #nav ul li a:hover {
+            background-color: red;
+        }
+
+        #nav ul li ul{
+            
+        }
+
+        #menuArea {
+            width: 800px;
+            height: 400px;
+        }
+
+        #sidebar {
+            width: 200px;
+            height: 400px;
+            float: left;
+            background-color: darkcyan;
+        }
+
+        #DArea {
+            width: 600px;
+            height: 400px;
+            float: left;
+            background-color: pink;
+        }
+
+        .D {
+            width: 300px;
+            height: 200px;
+            float: left;
+        }
+
+        #footer {
+            width: 800px;
+            height: 50px;
+            background-color: purple;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <div id="logo" class="logo">
+            <img src="images/logo.png" alt="Microsoft" id="logoPic" class="logo">
+        </div>
+        <div id="nav">
+            <ul>
+                <li>
+                    <a href="#">首页</a>
+                    <ul>
+                        <li></li>
+                    </ul>
+                </li>
+                <li><a href="#">相册</a></li>
+                <li><a href="#">日志</a></li>
+                <li><a href="#">留言板</a></li>
+            </ul>
+        </div>
+        <div id="menuArea">
+            <div id="sidebar">
+                菜单
+            </div>
+            <div id="DArea">
+                <div id="D1" class="D" style="background-color: red;">
+                    D1
+                </div>
+                <div id="D2" class="D" style="background-color:green;">
+                    D2
+                </div>
+                <div id="D3" class="D" style="clear: both;background-color: indianred;">
+                    D3
+                </div>
+                <div id="D4" class="D" style="background-color: yellow;">
+                    D4
+                </div>
+            </div>
+        </div>
+        <div id="footer">
+            开发者 临风
+        </div>
+    </div>
+</body>
+
+</html>

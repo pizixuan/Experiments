@@ -50,7 +50,7 @@
             height: 50px;
             text-decoration: none;
             color: white;
-            display: table;
+            display: block;
         }
 
         #nav ul li a:hover {
@@ -67,6 +67,30 @@
             height: 400px;
             float: left;
             background-color: darkcyan;
+        }
+
+        #sidebar ul {
+            font-size: 20px;
+            display: inline;
+            list-style-type: none;
+        }
+
+        #sidebar ul li {
+            display: block;
+            line-height: 50px;
+        }
+
+        #sidebar ul li a {
+            display: block;
+            line-height: 50px;
+            text-decoration: none;
+        }
+
+        #sidebar ul li ul li {
+            font-size: 15px;
+            color: black;
+            display: block;
+            line-height: 30px;
         }
 
         #DArea {
@@ -88,6 +112,25 @@
             background-color: purple;
         }
     </style>
+
+    <script>
+        function disp1() {
+            var menu11 = document.getElementById("menu11");
+            if (menu11.style.display == "none")
+                menu11.style.display = "block";
+            else if (menu11.style.display == "block")
+                menu11.style.display = "none";
+
+        }
+
+        function disp2() {
+            var menu21 = document.getElementById("menu21");
+            if (menu21.style.display == "none")
+                menu21.style.display = "block";
+            else if (menu21.style.display == "block")
+                menu21.style.display = "none";
+        }
+    </script>
 </head>
 
 <body>
@@ -97,12 +140,7 @@
         </div>
         <div id="nav">
             <ul>
-                <li>
-                    <a href="#">首页</a>
-                    <ul>
-                        <li></li>
-                    </ul>
-                </li>
+                <li><a href="#">首页</a></li>
                 <li><a href="#">相册</a></li>
                 <li><a href="#">日志</a></li>
                 <li><a href="#">留言板</a></li>
@@ -110,7 +148,26 @@
         </div>
         <div id="menuArea">
             <div id="sidebar">
-                菜单
+                <ul>
+                    <li>
+                        <a href="#" onclick="disp1()">菜单一</a>
+                        <ul id="menu11" style="display:none">
+                            <li>1</li>
+                            <li>2</li>
+                            <li>3</li>
+                            <li>4</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" onclick="disp2()">菜单二</a>
+                        <ul id="menu21" style="display:none">
+                            <li>1</li>
+                            <li>2</li>
+                            <li>3</li>
+                            <li>4</li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
             <div id="DArea">
                 <div id="D1" class="D" style="background-color: red;">

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="620" height="620" style="background-color:black"></canvas>
+</body>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var context = canvas.getContext("2d");
+    context.beginPath();
+    context.fillStyle = "yellow";
+    context.arc(300, 300, 40, 0, Math.PI * 2);
+    context.fill();
+    context.closePath();
+    for (var i = 1; i <= 9; i++) {
+        context.strokeStyle = "white";
+        context.beginPath();
+        context.arc(300, 300, (40 + 30 * i), 0, Math.PI * 2);
+        context.stroke();
+    }
+    context.closePath();
+    context.fillStyle = "red";
+    for (var i = 1; i < 5; i++) {
+        context.beginPath();
+        context.arc(260 - 60 * i, 300, 10, 0, Math.PI * 2);
+        context.fill();
+        context.closePath();
+    }
+    for (var i = 0; i < 5; i++) {
+        context.beginPath();
+        context.arc(610 - 60 * i, 300, 10, 0, Math.PI * 2);
+        context.fill();
+        context.closePath();
+    }
+</script>
+
+</html>

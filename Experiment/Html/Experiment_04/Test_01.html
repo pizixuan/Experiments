@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" action="index.html">
+        请输入E-mail地址:
+        <input type="email" name="email"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请输入网址:
+        <input type="url" name="url"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请输入数值:
+        <input type="number" name="number" max="100" min="20" value="50"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请选择数值:
+        <input type="range" name="range" max="100" min="20" value="50"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请选择日期:
+        <input type="date" name="date"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请选择颜色:
+        <input type="color" name="color"/><br>
+        <input type="submit">
+    </form><br>
+    <form method="POST" action="index.html">
+        请选择你最喜欢的编程语言:
+        <input type="text" name="program language" list="program language">
+        <datalist id="program language">
+            <option value="C"></option>
+            <option value="C++"></option>
+            <option value="Java"></option>
+            <option value="Python"></option>
+            <option value="Go"></option>
+        </datalist>
+        <input type="submit">
+    </form>
+</body>
+</html>

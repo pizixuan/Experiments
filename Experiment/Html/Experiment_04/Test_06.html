@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="1000" height="800"></canvas>
+</body>
+<script>
+    function show() {
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext("2d");
+        var img = new Image();
+        img.onload = function () {
+            var strText = prompt("请输入祝福语", "");
+            context.fillStyle = "red";
+            context.font = "bold 250px KaiTi";
+            context.drawImage(img, 0, 0);
+            context.fillText(strText, 350, 300, 400);
+            context.stroke();
+        }
+        img.src = "images/flower.jpg";
+
+        // img.onload = function () {
+        //     context.fillStyle = "red";
+        //     context.font = "bold 200px KaiTi";
+        //     context.drawImage(img, 0, 0);
+        //     context.fillText("ERROR!", 680, 800, 200);
+        //     context.stroke();
+        // }
+        // img.src = "images/1.jpg";
+    }
+    window.onload = show();
+</script>
+
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="580" height="580" style="border:1px solid;background-color: #F9CC9D;"></canvas>
+</body>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var context = canvas.getContext("2d");
+    var operator = 1; //用于判断黑棋(1)或白棋(2)
+    var x = 0; //落子坐标
+    var y = 0;
+
+    var chess = new Array(); //用于判断落子的位置
+    for (var i = 20; i <= 580; i += 30) {
+        chess[i] = new Array();
+        for (var j = 20; j <= 580; j += 30) {
+            chess[i][j] = 0;
+        }
+    }
+
+    function goBoard() { //创建棋盘
+        context.strokeStyle = "black";
+        for (var i = 0; i < 18; i++)
+            for (var j = 0; j < 18; j++)
+                context.strokeRect(20 + 30 * i, 20 + 30 * j, 30, 30);
+        for (var i = 110; i <= 470; i += 180){
+            for (var j = 110; j <= 470; j += 180){
+                context.fillStyle = "black";
+                context.beginPath();
+                context.arc(i, j, 4, 0, Math.PI*2);
+                context.fill();
+                context.closePath();
+            }
+        }
+    }
+    window.onload = goBoard();
+
+    canvas.addEventListener("click", function (event) {
+        judgeOperator(event);
+        judgeWinner();
+    });
+
+    function judgeOperator(event) {
+        x = Math.round((event.offsetX - 20) / 30) * 30 + 20;
+        y = Math.round((event.offsetY - 20) / 30) * 30 + 20;
+        if (operator == 1 && chess[x][y] == 0) { //画圆
+            context.fillStyle = "black";
+            fill();
+            changeChessIndex();
+            operator = 2;
+        } else if (operator == 2 && chess[x][y] == 0) { //画圆
+            context.fillStyle = "white";
+            fill();
+            changeChessIndex();
+            operator = 1;
+        }
+    }
+
+    function fill() {
+        context.beginPath();
+        context.arc(x, y, 12, 0, Math.PI * 2);
+        context.closePath();
+        context.fill();
+    }
+
+    function changeChessIndex() {
+        if (operator == 1)
+            chess[x][y] = 1;
+        else
+            chess[x][y] = 2;
+    }
+
+    function judgeWinner() {
+        var num = chess[x][y]; //读取棋色
+        var count = 1;
+        var tempX = x; //判断当前位置
+        var tempY = y;
+        //水平方向判断
+        for (var i = 0; i < 2; i++) {
+            tempX = x;
+            tempY = y;
+            console.log("当前位置" + "x:" + tempX + "y:" + tempY);
+            if (i == 0) {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX - 30;
+                    tempY = tempY;                    
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            } else {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX + 30;
+                    tempY = tempY;                    
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            }
+        }
+        count = 1;
+
+        //左斜方向判断
+        for (var i = 0; i < 2; i++) {
+            tempX = x;
+            tempY = y;
+            console.log("当前位置" + "x:" + tempX + "y:" + tempY);
+            if (i == 0) {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX - 30;
+                    tempY = tempY - 30;
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            } else {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX + 30;
+                    tempY = tempY + 30;
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            }
+        }
+        count = 1;
+
+        //竖直方向判断
+        for (var i = 0; i < 2; i++) {
+            tempX = x;
+            tempY = y;
+            console.log("当前位置" + "x:" + tempX + "y:" + tempY);
+            if (i == 0) {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX;
+                    tempY = tempY + 30;
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            } else {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX;
+                    tempY = tempY - 30;                    
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            }
+        }
+        count = 1;
+
+        //右斜方向判断
+        for (var i = 0; i < 2; i++) {
+            tempX = x;
+            tempY = y;
+            console.log("当前位置" + "x:" + tempX + "y:" + tempY);
+            if (i == 0) {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX + 30;
+                    tempY = tempY - 30;                    
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            } else {
+                for (var j = 1; j < 5; j++) {
+                    tempX = tempX - 30;
+                    tempY = tempY + 30;                
+                    if (outChess(tempX, tempY))
+                        break;
+                    if (chess[tempX][tempY] != num)
+                        break;
+                    else if (chess[tempX][tempY] == num) {
+                        count += 1;
+                        if (count == 5)
+                            alert("玩家" + num + "获胜");
+                    }
+                }
+            }
+        }
+        count = 1;
+    }
+
+    function outChess(tX, tY) {
+        if (tX < 20 || tX > 560 || tY < 20 || tY > 560)
+            return true;
+        return false;
+    }
+</script>
+
+</html>

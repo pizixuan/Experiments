@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo 04</title>
+    <script src="../vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        {{message}}
+        <span v-once>{{message}}</span>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            message: 1
+        }
+    })
+</script>
+</html>

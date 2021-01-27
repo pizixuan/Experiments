@@ -1,0 +1,2 @@
+D:\Code\Codefield\Book\C++ Primer\Chapter2\2.6.3\Project 2.42\Debug\Project 2.42.exe
+D:\Code\Codefield\Book\C++ Primer\Chapter2\2.6.3\Project 2.42\Debug\Project 2.42.pdb

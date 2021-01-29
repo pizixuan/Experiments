@@ -5,3 +5,13 @@
 *.gitignore
 Visual Studio/
 !.cpp
+
+// visual project
+
+**/Debug
+**/*.sln
+**/*.vcxproj
+**/*.vcxproj.filters
+**/*.vcxproj.user
+**/.v16
+**/.vs

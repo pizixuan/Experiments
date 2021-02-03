@@ -17,7 +17,7 @@ int main() {
 	return 0;
 }
 
-int calc(int &i, int &j) {
+int calc(int &i, int &j) { 
 	return i + j;
 }
 

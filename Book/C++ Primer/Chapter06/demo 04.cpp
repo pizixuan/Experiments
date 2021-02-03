@@ -8,7 +8,7 @@ sz wd = 10;
 char def = '*';
 
 string screen(sz = ht, sz = wd, char = def);
-string screen2(sz = 20, sz = 20, char = '*');
+string screen2(sz = 20, sz = 20, char = '*');	// 已定义默认实参，实现时不能赋予默认值 
 
 string screen3(sz, sz, char = '*');
 string screen3(sz = 30, sz = 30, char);	 	// 赋予默认实参 
@@ -41,7 +41,7 @@ string screen(sz ht, sz wd, char def) {
 	return "";
 }
 
-string screen2(sz ht_, sz wd_, char def_) {
+string screen2(sz ht_, sz wd_, char def_) {	// error   sz ht_ = 100
 	cout << "screen2:" << endl;
 	cout << "ht is " << ht_ << endl;
 	cout << "wd is " << wd_ << endl;

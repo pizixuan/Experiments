@@ -6,8 +6,7 @@
 Visual Studio/
 !.cpp
 
-// visual project
-
+# visual project
 **/Debug
 **/*.sln
 **/*.vcxproj

@@ -30,6 +30,8 @@ int main() {
 	cout << total.bookNo << " " << total.units_sold << " " << total.revenue << endl;
 	Sales_data is(cin);
 	print(cout, is);
+	system("pause");
+	return 0;
 }
 
 

@@ -1,0 +1,60 @@
+﻿<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>study</title>
+	<script type="text/javascript">
+		var xmlHttp;
+		window.onload = function () {
+			try {
+				xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+			} catch (e) {
+				xmlHttp = new XMLHttpRequest();
+			}
+			startajax(document.getElementById("sheng"), 0);
+		}
+
+		function startajax(obj, a) {
+			obj.length = 1;
+			xmlHttp.open("GET", "https://water.hrenergy.cn/WeatherForecast/GetLinkCn?id=" + a);
+			xmlHttp.onreadystatechange = function () { handleStateChange(obj); }
+			xmlHttp.send(null);
+		}
+
+		function handleStateChange(obj) {
+			if (xmlHttp.readyState == 4) {
+				if (xmlHttp.status == 200) {
+					var json = eval(xmlHttp.responseText);
+					for (i = 0; i < json.length; i++) {
+						opt = new Option(json[i].name, json[i].id);
+						obj.options.add(opt);
+					}
+				}
+			}
+		}
+
+		function sheng(a) {
+			startajax(document.getElementById("shi"), a);
+			document.getElementById("xian").length = 1;
+		}
+
+		function shi(a) {
+			startajax(document.getElementById("xian"), a);
+		}
+	</script>
+</head>
+
+<body>
+	<select id="sheng" onchange="sheng(this.value);">
+		<option value="-1">请选择省</option>
+	</select>
+	<select id="shi" onchange="shi(this.value);">
+		<option value="-1">请选择市</option>
+	</select>
+	<select id="xian">
+		<option value="-1">请选择县</option>
+	</select>
+	<div id="result"></span>
+</body>
+
+</html>

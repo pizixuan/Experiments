@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>show</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <el-table :data="tableData.filter(tableData => !search || tableData.sname.toLowerCase().includes(search.toLowerCase()))"
+            style="width: 100%" >
+            <el-table-column label="sno" prop="sno">
+            </el-table-column>
+            <el-table-column label="sname" prop="sname">
+            </el-table-column>
+            <el-table-column label="certify" prop="certify">
+            </el-table-column>
+            <el-table-column label="titleno" prop="titleno">
+            </el-table-column>
+            <el-table-column label="titlename" prop="titlename">
+            </el-table-column>
+            <el-table-column align="right">
+                <template slot="header" slot-scope="scope">
+                    <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+                </template>
+                <template slot-scope="scope">
+                    <el-button size="mini" @click="handleEdit(scope.$index, scope.row); dialogFormVisible = true; isAdd = false; isEdit = true">Edit
+                    </el-button>
+                    <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">Delete
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <div class="block">
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                :current-page="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="100"
+                layout="total, sizes, prev, pager, next, jumper" :total=totalNum>
+            </el-pagination>
+        </div>
+
+        <el-row>
+            <el-button type="primary" @click="dialogFormVisible = true; handleAdd(); isAdd = true; isEdit = false">添加数据</el-button>
+        </el-row>
+
+        <el-dialog title="表单数据" :visible.sync="dialogFormVisible">
+            <el-form :model="form">
+                <el-form-item label="sno" :label-width="formLabelWidth">
+                    <el-input v-model="form.sno" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="sname" :label-width="formLabelWidth">
+                    <el-input v-model="form.sname" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="certify" :label-width="formLabelWidth">
+                    <el-input v-model="form.certify" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="titleno" :label-width="formLabelWidth">
+                    <el-input v-model="form.titleno" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="titlename" :label-width="formLabelWidth">
+                    <el-input v-model="form.titlename" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogFormVisible = false; actionJudge()">确 定</el-button>
+            </div>
+        </el-dialog>
+
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    pageIndex: '1',
+                    pageSize: '10',
+                    tableData: [],
+                    search: '',
+                    totalNum: 0,
+                    currentPage: 1,
+                    dialogFormVisible: false,
+                    form: {
+                        sno: '',
+                        sname: '',
+                        certify: '',
+                        titleno: '',
+                        titlename: ''
+                    },
+                    formLabelWidth: '120px',
+                    isEdit: false,
+                    isAdd: false
+                }
+            },
+            methods: {
+                handleSizeChange(val) {
+                    // console.log(`每页 ${val} 条`);
+                    this.pageSize = `${val}`;
+                    this.getData();
+                },
+                handleCurrentChange(val) {
+                    // console.log(`当前页: ${val}`);
+                    this.pageIndex = `${val}`;
+                    this.getData();
+                },
+                handleAdd() {
+                    this.clearForm();
+                },
+
+                handleEdit(index, row) {
+                    this.form = this.tableData[index];
+                    console.log(index, row);
+                },
+                handleDelete(index, row) {
+                    // console.log(index, row);
+                    this.deleteData(row.sno);
+                },
+                clearForm() {
+                    this.form = {
+                        sno: '',
+                        sname: '',
+                        certify: '',
+                        titleno: '',
+                        titlename: ''
+                    }
+                },
+                actionJudge() {
+                    if (this.isAdd == true)
+                        this.addData();
+                    else if (this.isEdit == true)
+                        this.modData();
+                },
+
+                getData() {
+                    var that = this;
+                    axios.get('https://water.hrenergy.cn/WeatherForecast/Subject', {
+                        params: {
+                            pageIndex: that.pageIndex,
+                            pageSize: that.pageSize
+                        }
+                    })
+                        .then(function (response) {
+                            that.tableData = response.data.data;
+                            that.totalNum = response.data.total;
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
+                },
+                addData() {
+                    var that = this;
+                    axios.post('https://water.hrenergy.cn/WeatherForecast/AddSubject', {
+                        sno: that.form.sno,
+                        sname: that.form.sname,
+                        certify: that.form.certify,
+                        titleno: that.form.titleno,
+                        titlename: that.form.titlename
+                    })
+                        .then(function (response) {
+                            console.log(response);
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+
+                modData() {
+                    var that = this;
+                    axios.post('https://water.hrenergy.cn/WeatherForecast/ModSubject', {
+                        sno: that.form.sno,
+                        sname: that.form.sname,
+                        certify: that.form.certify,
+                        titleno: that.form.titleno,
+                        titlename: that.form.titlename
+                    })
+                        .then(function (response) {
+                            console.log(response);
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+
+                deleteData(str) {
+                    var that = this;
+                    console.log(str);
+                    axios.get('https://water.hrenergy.cn/WeatherForecast/DelSubject', {
+                        params: {
+                            sno: str
+                        }
+                    })
+                        .then(function (response) {
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
+                }
+            },
+            created() {
+                this.getData();
+            }
+        })
+    </script>
+
+</body>
+
+</html>

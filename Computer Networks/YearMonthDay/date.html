@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <select name="" id="sheng" onchange="buildOption(document.getElementById('shi'), this.value)">
+    </select>
+    <select name="" id="shi" onchange="buildOption(document.getElementById('xian'), this.value)">
+    </select>
+    <select name="" id="xian">
+    </select>
+</body>
+<script type="text/javascript">
+    window.onload = buildOption(document.getElementById("sheng"), 0);
+
+    function buildOption(obj, id) {
+        obj.length = 0;
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open("GET", "https://water.hrenergy.cn/WeatherForecast/GetLinkCn?id=" + id);
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                var json = JSON.parse(xmlHttp.responseText);
+                for (var i = 0; i < json.length; ++i) {
+                    var opt = new Option(json[i].name, json[i].id);
+                    obj.options.add(opt);
+                }
+                if (obj == document.getElementById("sheng"))
+                    buildOption(document.getElementById("shi"), obj.value);
+                else if (obj == document.getElementById("shi"))
+                    buildOption(document.getElementById("xian"), obj.value);
+            }
+        }
+        xmlHttp.send(null);
+    }
+</script>
+
+</html>

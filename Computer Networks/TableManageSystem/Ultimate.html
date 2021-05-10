@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RB</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <el-form :model="form" status-icon :rules="rules" ref="form" class="demo-ruleForm">
+            <el-table
+                :data="tableData.filter(tableData => !search || tableData.sname.toLowerCase().includes(search.toLowerCase()))"
+                style="width: 100%">
+                <el-table-column label="sno">
+                    <template slot-scope="scope">
+                        <el-form-item prop="sno" v-if="scope.row.isInput">
+                            <el-input v-model="form.sno" :disabled="disabledSno" />
+                            </el-input>
+                        </el-form-item>
+                        <span v-else>{{ scope.row.sno }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="sname">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="sname">
+                                <el-input v-model="form.sname" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.sname }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="certify">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="certify">
+                                <el-input v-model="form.certify" />
+                                </el-input>
+                                
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.certify }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="titleno">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="titleno">
+                                <el-input v-model="form.titleno" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.titleno }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="titlename">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="titlename">
+                                <el-input v-model="form.titlename" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.titlename }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column align="right">
+                    <template slot="header" slot-scope="scope">
+                        <el-autocomplete v-model="state" @input="inputChange" :fetch-suggestions="querySearch"
+                            placeholder="请输入Sname进行查找" :trigger-on-focus="false" value-key="sname"
+                            @select="handleSelect">
+                        </el-autocomplete>
+                    </template>
+
+                    <template slot-scope="scope">
+                        <!-- <el-form-item> -->
+                        <el-button size="mini" @click="editOrSubmit(scope.$index, 'form')">
+                            <!-- 编辑 -->
+                            <span v-if="!scope.row.isInput">Edit</span>
+                            <!-- 提交 -->
+                            <span v-else>Submit</span>
+                        </el-button>
+                        <el-button size="mini" type="danger" @click="deleteOrCancel(scope.$index, scope.row)">
+                            <!-- 删除 -->
+                            <span v-if="!scope.row.isInput">Delete</span>
+                            <!-- 取消 -->
+                            <span v-else>Cancel</span>
+                        </el-button>
+                        <!-- </el-form-item> -->
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <div class="block">
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes=pageSizeNow :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total=totalDataNum>
+                </el-pagination>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <div style="float: left">
+                    <el-form-item>
+                        <el-button type="primary" @click="handleAdd()" :disabled="disabledButton">添加数据</el-button>
+                        <el-button type="primary" @click="deleteAllBro()" :disabled="disabledButton">删除数据
+                        </el-button>
+                        <el-button type="primary" @click="isDifferent()">测试不同</el-button>
+                    </el-form-item>
+                </div>
+                <div style="float:left;margin-left:15px">
+                    <el-upload class="upload-demo" ref="upload" action="https://api.dreamwithme.cn/user/upload"
+                        :on-preview="handlePreview" :on-remove="handleRemove" :on-success="uploadSuccess"
+                        :on-error="uploadError" :file-list="fileList" :auto-upload="false"
+                        :before-remove="beforeRemove">
+                        <el-button slot="trigger" type="primary" :disabled="disabledButton">选取文件</el-button>
+                        <el-button style="margin-left: 10px;" type="success" @click="submitUpload"
+                            :disabled="disabledButton">
+                            上传到服务器
+                        </el-button>
+                        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                    </el-upload>
+                </div>
+            </div>
+
+        </el-form>
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data() {
+                return {
+                    // 获取数据参数
+                    pageIndex: '1',
+                    pageSize: '10',
+                    // 表格数据
+                    tableData: [],
+                    // 查询
+                    search: '',
+                    // 分页
+                    totalDataNum: 0,
+                    currentPage: 1,
+                    pageSizeNow: [10, 20, 30, 40],
+                    // 表单
+                    form: {
+                        sno: '',
+                        sname: '',
+                        certify: '',
+                        titleno: '',
+                        titlename: '',
+                        isInput: false,
+
+                        //身份校验
+                        sex: '',
+                        age: '',
+                        birthday: '',
+                        birthplace: ''
+                    },
+                    formLabelWidth: '120px',
+                    // 状态
+                    isEdit: false,
+                    isAdd: false,
+                    isSearch: false,
+                    // 当前编辑行，-1说明无输入框
+                    index: -1,
+                    // 废除按钮
+                    disabledSno: false,
+                    disabledButton: false,
+
+                    // 临时数组，用于对比是否修改
+                    compareData: [],
+                    // 校验规则
+                    rules: {
+                        // sno: [{
+                        //     required: true,
+                        //     message: '请输入sno',
+                        //     trigger: 'blur'
+                        // },],
+                        // sname: [{
+                        //     required: true,
+                        //     message: '请输入sname',
+                        //     trigger: 'blur'
+                        // },],
+                        // certify: [{
+                        //     required: true,
+                        //     message: '请输入certify',
+                        //     trigger: 'blur'
+                        // },
+                        // {
+                        //     min: 1,
+                        //     max: 1,
+                        //     message: '请输入正确身份证号',
+                        //     trigger: 'change'
+                        // },
+                        // ],
+                        // titleno: [{
+                        //     min: 2,
+                        //     max: 2,
+                        //     message: '长度必须为2个字符',
+                        //     trigger: 'change'
+                        // },
+                        // {
+                        //     required: true,
+                        //     message: '请输入titleno',
+                        //     trigger: 'blur'
+                        // }
+                        // ],
+                        // titlename: [{
+                        //     required: true,
+                        //     message: '请输入titlename',
+                        //     trigger: 'blur'
+                        // }]
+                    },
+                    // 上传文件列表
+                    fileList: [],
+                    // 查询
+                    state: '',
+                    queryResults: [],
+                    compareData: [],
+
+                    //身份证校验
+                    
+                }
+            },
+            methods: {
+                // 重置所有参数
+                refresh() {
+                    this.isAdd = false;
+                    this.isEdit = false;
+                    this.tableData[this.index] = false;
+                    this.index = -1;
+                    this.disabledSno = false;
+                    this.disabledButton = false;
+                    this.isSearch = false;
+                },
+
+                // // 判断是否有变化
+                isDifferent() {
+                    if (this.form.sno != this.compareData.sno ||
+                        this.form.sname != this.compareData.sname ||
+                        this.form.certify != this.compareData.certify ||
+                        this.form.titleno != this.compareData.titleno ||
+                        this.form.titlename != this.compareData.titlename
+                    ) {
+                        // console.log("inSame");
+                        return true;
+                    } else {
+                        // console.log("Same");
+                        return false;
+                    }
+                },
+
+
+                async deleteAllBro() {
+                    // this.pageSize = this.totalDataNum;
+                    console.log(`${this.pageSize}`);
+                    var that = this;
+                    await axios.get('https://water.hrenergy.cn/WeatherForecast/Subject', {
+                        params: {
+                            pageIndex: that.pageIndex,
+                            pageSize: this.totalDataNum
+                        }
+                    }).then((response) => {
+                        const data = response.data.data.filter((val) => {
+                            return val.sname.includes('本接口将弃用')
+                        });
+                        for (var i = 0; i < data.length; i++) {
+                            axios.get('https://water.hrenergy.cn/WeatherForecast/DelSubject', {
+                                params: {
+                                    sno: data[i].sno
+                                }
+                            }).then((response) => { })
+                        }
+                    })
+
+                    await this.getData();
+                },
+
+                alertMessage(message, type, duration) {
+                    this.$message({
+                        message: message,
+                        type: type,
+                        duration: duration
+                    });
+                },
+
+                // 切换页面
+                handleSizeChange(val) {
+                    this.refresh();
+                    this.pageSize = `${val}`;
+                    this.getData();
+                },
+                handleCurrentChange(val) {
+                    this.refresh();
+                    this.pageIndex = `${val}`;
+                    this.getData();
+                },
+
+                // 点击 添加数据 按钮触发
+                handleAdd() {
+                    this.isAdd = true;
+                    this.index = 0;
+                    this.disabledButton = true;
+                    this.form = {
+                        sno: '',
+                        sname: '',
+                        certify: '',
+                        titleno: '',
+                        titlename: ''
+                    };
+                    this.tableData.unshift(this.form);
+                    this.tableData[0].isInput = true;
+                },
+
+                // 点击 Delete 按钮触发
+                deleteOrCancel(index, row) {
+                    // 无编辑框 => 删除当前行数据
+                    // Delete
+                    if (this.index == -1) {
+                        this.handleDelete(index, row);
+                        this.alertMessage("删除成功", "success", 1000);
+                        console.log(this.tableData.length);
+                        if (this.tableData.length == 1) {
+                            this.pageIndex -= 1;
+                            this.getData();
+                        }
+                    }
+
+                    // 有编辑框
+                    // 当前行的 Cancel
+                    else if (this.index != -1 && this.index == index) {
+                        if (this.isSearch == true) {
+                            this.handleSelect(this.tableData[this.index].sname);
+                            this.refresh();
+                            this.isSearch = true;
+                            // this.getData();
+
+                        } else {
+                            this.refresh();
+                            this.getData();
+                        }
+                        this.alertMessage("取消操作", "warning", 1000);
+                    }
+                    // 其他行的 Delete
+                    else {
+                        this.alertMessage("请完成当前操作", "error", 1000);
+                        // console.log("其他行的Delete");
+                    }
+                },
+                handleDelete(index, row) {
+                    this.deleteData(row.sno);
+                },
+
+                // 点击 Edit/Submit 按钮触发
+                editOrSubmit(index, formName) {
+                    // 如果无输入框 而且 输入框与当前点击行不匹配
+                    // 则应将当前行变为输入框
+                    if (this.index == -1 && this.index != index) {
+                        // 更新输入框位置
+                        this.index = index;
+                        this.isEdit = true;
+                        // sno 不可编辑, button 失效
+                        this.disabledSno = true;
+                        this.disabledButton = true;
+
+                        // 变成输入框格式
+                        this.tableData[index].isInput = true;
+                        this.formGetData(this.index);
+
+                        // 将当前输入框内容存入临时数组
+                        this.compareData.sno = this.tableData[this.index].sno;
+                        this.compareData.sname = this.tableData[this.index].sname;
+                        this.compareData.certify = this.tableData[this.index].certify;
+                        this.compareData.titleno = this.tableData[this.index].titleno;
+                        this.compareData.titlename = this.tableData[this.index].titlename;
+                    }
+
+                    // 为 Submit 状态
+                    else if (this.isEdit == true || this.isAdd == true) {
+                        // 有输入框处于编辑或添加状态 => 其他 Edit/Delte 应失效
+                        // Edit 提交
+                        if (this.isEdit == true && this.index == index) {
+                            this.$refs[formName].validate((valid) => {
+                                if (valid) {
+                                    if (this.isDifferent()) {
+                                        this.editData();
+                                        // 重置参数
+                                        this.refresh();
+                                        this.alertMessage("编辑成功", "success", 1000);
+                                    } else {
+                                        this.alertMessage("无修改", "warning", 1000);
+                                        this.refresh();
+                                        this.getData();
+                                    }
+                                } else {
+                                    console.log('error submit!!');
+                                    return false;
+                                }
+                            });
+
+                        } else if (this.isAdd == true && this.index == index) {
+                            this.$refs[formName].validate((valid) => {
+                                if (valid) {
+                                    this.addData();
+                                    this.refresh();
+                                    this.alertMessage("添加成功", "success", 1000);
+                                } else {
+                                    console.log('error submit!!');
+                                    return false;
+                                }
+                            });
+
+                        } else {
+                            this.alertMessage("请完成当前操作", "error", 1000);
+                        }
+                    } else {
+                        // console.log('edit/submit的第三种状态');
+                    }
+                },
+
+                handleEdit(index, row) {
+                    this.editData();
+                },
+
+                //查 ↓
+                async querySearch(queryString, cb) {
+                    await this.queryData(queryString);
+                    var queryResults = this.queryResults;
+                    var results = queryString ? queryResults.filter(this.createStateFilter(queryString)) :
+                        queryResults;
+                    cb(results);
+                    // clearTimeout(this.timeout);
+                    // this.timeout = setTimeout(() => {
+                    // 	cb(results);
+                    // }, 1000 * Math.random());
+                },
+                inputChange() {
+                    if (!this.state) {
+                        this.refresh();
+                        this.getData();
+
+                        // 将分页选项改回来
+                        this.pageSizeNow = [10, 20, 30, 40];
+                    }
+                },
+                createStateFilter(queryString) {
+                    return (states) => {
+                        return (states.sname.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+                    };
+                },
+                handleSelect(item) {
+                    this.refresh();
+                    this.isSearch = true;
+                    this.queryData(this.state);
+                },
+                //查 ↑
+
+                // 对 form 表单的操作
+                clearForm() {
+                    this.form = {
+                        sno: '',
+                        sname: '',
+                        certify: '',
+                        titleno: '',
+                        titlename: '',
+                    };
+                },
+                // form表单 获取指定行数据
+                formGetData(index) {
+                    this.form = this.tableData[index];
+                },
+
+                // 对 tableData[] 的操作
+                isInputFalse(index) {
+                    for (var i = 0; i < this.tableData.length; i++) {
+                        this.tableData[i].isInput = false;
+                    }
+                },
+
+                // 增删改查调用接口 ↓
+                async getData() {
+                    var that = this;
+                    axios.get('https://water.hrenergy.cn/WeatherForecast/Subject', {
+                        params: {
+                            pageIndex: that.pageIndex,
+                            pageSize: that.pageSize
+                        }
+                    })
+                        .then(function (response) {
+                            that.tableData = response.data.data;
+                            that.totalDataNum = response.data.total;
+                            that.isInputFalse();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
+                },
+                addData() {
+                    var that = this;
+                    axios.post('https://water.hrenergy.cn/WeatherForecast/AddSubject', {
+                        sno: that.form.sno,
+                        sname: that.form.sname,
+                        certify: that.form.certify,
+                        titleno: that.form.titleno,
+                        titlename: that.form.titlename
+                    })
+                        .then(function (response) {
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+
+                deleteData(str) {
+                    var that = this;
+                    axios.get('https://water.hrenergy.cn/WeatherForecast/DelSubject', {
+                        params: {
+                            sno: str
+                        }
+                    })
+                        .then(function (response) {
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
+                },
+
+                editData() {
+                    var that = this;
+                    axios.post('https://water.hrenergy.cn/WeatherForecast/ModSubject', {
+                        sno: that.form.sno,
+                        sname: that.form.sname,
+                        certify: that.form.certify,
+                        titleno: that.form.titleno,
+                        titlename: that.form.titlename
+                    })
+                        .then(function (response) {
+                            that.getData();
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+
+                async queryData(str) {
+                    var that = this;
+                    await axios.get('https://water.hrenergy.cn/WeatherForecast/QuerySubject', {
+                        params: {
+                            sname: str
+                        }
+                    })
+                        .then(function (response) {
+                            that.queryResults = response.data;
+                            if (response.data.status == 202)
+                                that.alertMessage("无此数据", "error", 1000);
+                            if (that.isSearch) {
+                                that.tableData = response.data;
+                                that.totalDataNum = response.data.length;
+
+                                // 分页大小也变化
+                                that.pageSizeNow = [that.totalDataNum];
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        })
+                        .then(function () {
+                            // always executed
+                        });
+                },
+
+                // 增删改查调用接口 ↑
+
+
+                // 上传文件 ↓
+                handleRemove(file, fileList) {
+                    console.log(file, fileList);
+                },
+                handlePreview(file) {
+                    console.log(file);
+                },
+                handleExceed(files, fileList) {
+                    this.$message.warning(
+                        `当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+                },
+                beforeRemove(file, fileList) {
+                    return this.$confirm(`确定移除 ${file.name}？`);
+                },
+                submitUpload() {
+                    this.$refs.upload.submit();
+                },
+                uploadSuccess(response, file, fileList) {
+                    this.alertMessage("上传成功", "success", 1000);
+                },
+                uploadError(err, file, fileList) {
+                    this.alertMessage("上传失败", "error", 1000);
+                },
+                // 上传文件 ↑
+
+                MyBro() {
+                    this.$notify({
+                        title: '成功',
+                        message: '欢迎您，大哥大',
+                        type: 'success',
+                        duration: 1000
+                    });
+                },
+
+                // 检测身份证
+            },
+            created() {
+                this.getData();
+                this.MyBro();
+            }
+        })
+    </script>
+</body>
+
+</html>

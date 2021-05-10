@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+	<!-- 引入样式 -->
+	<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	<!-- 引入组件库 -->
+	<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+	<div id="app">
+		<el-form :model="form" status-icon :rules="rules" ref="form" class="demo-ruleForm">
+			<!-- Table -->
+			<el-table
+				:data="tableData.filter(tableData => !search || tableData.sname.toLowerCase().includes(search.toLowerCase()))"
+				style="width: 100%">
+
+				<el-table-column label="sno">
+					<template slot-scope="scope">
+						<el-form-item prop="sno" v-if="scope.row.isEditing">
+							<el-input v-model="form.sno" :disabled="disabledSno" />
+							</el-input>
+						</el-form-item>
+						<span v-else>{{ scope.row.sno }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column label="sname">
+					<template slot-scope="scope">
+						<span v-if="scope.row.isEditing">
+							<el-form-item prop="sname">
+								<el-input v-model="form.sname" />
+								</el-input>
+							</el-form-item>
+						</span>
+						<span v-else>{{ scope.row.sname }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column label="certify">
+					<template slot-scope="scope">
+						<span v-if="scope.row.isEditing">
+							<el-form-item prop="certify">
+								<el-input v-model="form.certify" @blur="checkCard()" />
+								</el-input>
+							</el-form-item>
+						</span>
+						<span v-else>{{ scope.row.certify }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column label="titleno">
+					<template slot-scope="scope">
+						<span v-if="scope.row.isEditing">
+							<el-form-item prop="titleno">
+								<el-input v-model="form.titleno" @blur="blurConfirm(scope.$index, scope.row)" />
+								</el-input>
+							</el-form-item>
+						</span>
+						<span v-else>{{ scope.row.titleno }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column label="titlename">
+					<template slot-scope="scope">
+						<span v-if="scope.row.isEditing">
+							<el-form-item prop="titlename">
+								<el-input v-model="form.titlename" @blur="blurConfirm(scope.$index, scope.row)" />
+								</el-input>
+							</el-form-item>
+						</span>
+						<span v-else>{{ scope.row.titlename }}</span>
+					</template>
+				</el-table-column>
+
+				<el-table-column align="right">
+					<template slot="header" slot-scope="scope">
+						<el-autocomplete v-model="state" :fetch-suggestions="querySearch" placeholder="请输入Sname进行查找"
+							:trigger-on-focus="false" value-key="sname" @select="handleSelect">
+						</el-autocomplete>
+					</template>
+					<template slot-scope="scope">
+						<el-button size="mini" @click="handleEditConfirm(scope.$index, scope.row)">
+							<!-- 编辑 -->
+							<span v-if="!scope.row.isEditing">Edit</span>
+							<!-- 提交 -->
+							<span v-else>Submit</span>
+						</el-button>
+						<el-button size="mini" type="danger" @click="handleDeleteConfirm(scope.$index, scope.row)">
+							<!-- 删除 -->
+							<span v-if="!scope.row.isEditing">Delete</span>
+							<!-- 取消 -->
+							<span v-else>Cancel</span>
+						</el-button>
+					</template>
+				</el-table-column>
+
+			</el-table>
+		</el-form>
+
+		<!-- 分页 -->
+		<div class="block">
+			<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+				:current-page="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="10"
+				layout="total, sizes, prev, pager, next, jumper" :total=totalDataNum>
+			</el-pagination>
+		</div>
+
+		<!-- 增删 -->
+		<div style="margin-top: 15px;">
+			<div style="float: left">
+				<el-row>
+					<el-button type="success" @click="handleAddConfirm()" :disabled="disabled">
+						增加数据
+					</el-button>
+					<el-button type="danger" :disabled="disabled" @click="open()">
+						一键删除
+					</el-button>
+				</el-row>
+			</div>
+			<div style="float:left;margin-left:15px">
+				<el-upload class="upload-demo" ref="upload"
+					action="https://water.hrenergy.cn/WeatherForecast/FileUpload" :on-preview="handlePreview"
+					:on-remove="handleRemove" :on-success="uploadSuccess" :on-error="uploadError" :file-list="fileList"
+					:auto-upload="false" :before-remove="beforeRemove">
+					<el-button slot="trigger" type="primary" :disabled="disabled">选取文件</el-button>
+					<el-button style="margin-left: 10px;" type="success" @click="submitUpload" :disabled="disabled">
+						上传到服务器
+					</el-button>
+					<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+				</el-upload>
+			</div>
+		</div>
+
+	</div>
+	<script>
+		new Vue({
+			el: '#app',
+			data() {
+				return {
+					pageIndex: 1,
+					pageSize: 10,
+					tableData: [],
+					search: '',
+					form: {
+						sno: '',
+						sname: '',
+						certify: '',
+						titleno: '',
+						titlename: '',
+						isEditing: false,
+
+						//身份校验
+						sex: '',
+						age: '',
+						birthday: '',
+						birthplace: ''
+					},
+					dialogFormVisible: false,
+					formLabelWidth: '120px',
+					currentPage: 1,
+					//用于区分状态
+					isEdit: false,
+					isAdd: false,
+					//用于分页
+					totalDataNum: 0,
+					//用于确认其他按钮是否与当前编辑行同行，不是则不起作用
+					index: -1,
+					//存储点击添加按钮前的 pageSize
+					tempPageSize: 0,
+					// restaurants: [],
+					state: '',
+					timeout: null,
+					queryResults: [],
+					fileList: [],
+
+					//加载
+					fullscreenLoading: false,
+
+					//控制 增加 一键删除 上传文件 按钮是否可用
+					disabled: false,
+
+					//控制 sno 是否可编辑
+					disabledSno: true,
+
+					rules: {
+						sno: [
+							{ required: true, message: 'sno不能为空', trigger: 'blur' },
+							// { validator: snoCheck, trigger: 'blur' }
+						],
+						certify: [
+							{ required: true, message: 'certify不能为空', trigger: 'blur' },
+						],
+					},
+					// 身份证校验
+					area: {
+						11: "北京", 12: "天津", 13: "河北", 14: "山西", 15: "内蒙古", 21: "辽宁", 22: "吉林", 23: "黑龙江",
+						31: "上海", 32: "江苏", 33: "浙江", 34: "安徽", 35: "福建", 36: "江西", 37: "山东", 41: "河南", 42: "湖北",
+						43: "湖南", 44: "广东", 45: "广西", 46: "海南", 50: "重庆", 51: "四川", 52: "贵州", 53: "云南", 54: "西藏",
+						61: "陕西", 62: "甘肃", 63: "青海", 64: "宁夏", 65: "新疆", 71: "台湾", 81: "香港", 82: "澳门", 91: "国外"
+					},
+					Wi: [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
+					ValideCode: [1, 0, "X", 9, 8, 7, 6, 5, 4, 3, 2],
+				}
+			},
+			methods: {
+				// 检测身份证
+				checkCard() {
+					if (!this.form.certify) return;
+					let CardId = this.form.certify;
+					if (CardId.length == 15) {
+						if (this.is15Card(CardId)) {
+							this.go(CardId.length);
+						}
+						else {
+							return this.$message({ type: 'error', message: '您的身份证号有误！请输入你真实的身份证号，确保你的利益得到保障！' });
+						}
+					} else if (CardId.length == 18) {
+						let a_iden = CardId.split("");
+						if (this.is18Card(CardId) && this.is18CardEnd(a_iden)) {
+							this.go(CardId.length);
+							return this.is18Card(CardId);
+						}
+						else {
+							return this.$message({ type: 'error', message: '您的身份证号有误！请输入你真实的身份证号，确保你的利益得到保障！' });
+						}
+					} else {
+						return this.$message({ type: 'error', message: '您的身份证号有误！请输入你真实的身份证号，确保你的利益得到保障！' });
+					}
+				},
+
+				// 检测18位身份证号最后一位是否符合要求
+				is18CardEnd(a_idCard) {
+					let sum = 0;
+					if (a_idCard[17].toLowerCase() == 'x') {
+						a_idCard[17] = 10;
+					}
+					for (var i = 0; i < 17; i++) {
+						sum += this.Wi[i] * a_idCard[i];
+					}
+					let valCodePosition = sum % 11;
+					if (a_idCard[17] == this.ValideCode[valCodePosition]) {
+						return true;
+					} else {
+						return false;
+					}
+				},
+
+				// 验证最后一位校正码
+				is18Card(idCard18) {
+					let year = idCard18.substring(6, 10);
+					let month = idCard18.substring(10, 12);
+					let day = idCard18.substring(12, 14);
+					let temp_date = new Date(year, parseFloat(month) - 1, parseFloat(day));
+					if (temp_date.getFullYear() != parseFloat(year)
+						|| temp_date.getMonth() != parseFloat(month) - 1
+						|| temp_date.getDate() != parseFloat(day)) {
+						return false;
+					} else {
+						return true;
+					}
+				},
+
+				is15Card(idCard15) {
+					let year = idCard15.substring(6, 8);
+					let month = idCard15.substring(8, 10);
+					let day = idCard15.substring(10, 12);
+					let temp_date = new Date(year, parseFloat(month) - 1, parseFloat(day));
+					if (temp_date.getYear() != parseFloat(year) || temp_date.getMonth() != parseFloat(month) - 1 || temp_date.getDate() != parseFloat(day)) {
+						return false;
+					} else {
+						return true;
+					}
+				},
+
+				// 实现自动生成生日，性别，年龄
+				go(val) {
+					let iden = this.form.certify;
+					let sex = null;
+					let birth = null;
+					let myDate = new Date();
+					let month = myDate.getMonth() + 1;
+					let day = myDate.getDate();
+					let age = 0;
+
+					if (val === 18) {
+						age = myDate.getFullYear() - iden.substring(6, 10) - 1;
+						sex = iden.substring(16, 17);
+						birth = iden.substring(6, 10) + "-" + iden.substring(10, 12) + "-" + iden.substring(12, 14);
+						if (iden.substring(10, 12) < month || iden.substring(10, 12) == month && iden.substring(12, 14) <= day) age++;
+
+					}
+					if (val === 15) {
+						age = myDate.getFullYear() - iden.substring(6, 8) - 1901;
+						sex = iden.substring(13, 14);
+						birth = "19" + iden.substring(6, 8) + "-" + iden.substring(8, 10) + "-" + iden.substring(10, 12);
+						if (iden.substring(8, 10) < month || iden.substring(8, 10) == month && iden.substring(10, 12) <= day) age++;
+					}
+
+					if (sex % 2 === 0)
+						sex = '0';
+					else
+						sex = '1';
+					this.form.sex = sex;
+					this.form.age = age;
+					this.form.birthday = birth;
+					this.form.birthplace = this.area[iden.substring(0, 2)];
+				},
+
+				submitForm(formName) {
+					this.$refs[formName].validate((valid) => {
+						if (valid) {
+							alert('submit!');
+						} else {
+							console.log('error submit!!');
+							return false;
+						}
+					});
+				},
+				resetForm(formName) {
+					this.$refs[formName].resetFields();
+				},
+
+				handleRemove(file, fileList) {
+					console.log(file, fileList);
+				},
+				handlePreview(file) {
+					console.log(file);
+				},
+				handleExceed(files, fileList) {
+					this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
+				},
+				beforeRemove(file, fileList) {
+					return this.$confirm(`确定移除 ${file.name}？`);
+				},
+				submitUpload() {
+					this.$refs.upload.submit();
+				},
+				uploadSuccess(response, file, fileList) {
+					this.$message({
+						message: '上传成功!',
+						type: 'success',
+						1000: 1000
+					});
+				},
+				uploadError(err, file, fileList) {
+					this.$message({
+						message: '上传失败',
+						type: 'error',
+						duration: 1000
+					});
+				},
+				openFullScreen() {
+					const loading = this.$loading({
+						lock: true,
+						text: 'Loading',
+						spinner: 'el-icon-loading',
+						background: 'rgba(0, 0, 0, 0.7)'
+					});
+					setTimeout(() => {
+						loading.close();
+					}, 2000);
+				},
+				//右侧欢迎弹窗
+				welcome_() {
+					this.$notify({
+						title: '成功',
+						message: '欢迎您，大哥大',
+						type: 'success',
+						duration: 2000
+					});
+				},
+
+				refresh() {
+					this.index = -1;
+					this.isAdd = false;
+					this.isEdit = false;
+					this.disabled = false;
+					this.disabledSno = true;
+				},
+
+
+				handleSizeChange(val) {
+					this.refresh();
+					this.pageSize = `${val}`;
+					this.getData();
+				},
+				handleCurrentChange(val) {
+					this.refresh();
+					this.pageIndex = `${val}`;
+					this.getData();
+				},
+				handleAddConfirm() {
+					if (this.isAdd != true && this.isEdit != true) {
+						this.index = 0;
+						this.disabled = true;
+						//添加时可修改
+						this.disabledSno = false;
+						this.handleAdd();
+					}
+				},
+				handleAdd() {
+					// 添加状态
+					this.isAdd = true;
+					var obj = { sno: '', sname: '', certify: '', titleno: '', titlename: '' };
+					this.form = obj;
+					this.tableData.unshift(obj);
+					this.tableData[0].isEditing = true;
+				},
+
+
+				handleEditConfirm(index, row) {
+					if (index == 0 && this.pageIndex == 1 && this.isAdd != true)
+						this.$message({
+							message: '当前数据无法进行操作',
+							type: 'error',
+							duration: 1000
+						});
+					else if (this.index < 0) {
+						this.handleEdit(index, row);
+					}
+
+					//编辑框状态下点击其他Edit
+					else if (index != this.index) {
+						this.$message({
+							message: '请完成当前行操作',
+							type: 'error',
+							duration: 1000
+						});
+					}
+					else {
+						this.handleEdit(index, row);
+					}
+				},
+				//编辑 和 提交
+				handleEdit(index, row) {
+					//更新当前编辑行					
+					this.index = index;
+					//进入编辑状态
+					if (this.isEdit == false && this.isAdd == false) {
+						this.isEdit = true;
+					}
+
+					//Edit
+					//非输入框操作 => 进入输入框操作
+					if (row.isEditing == false || row.isEditing == undefined) {
+						//作废其他按钮
+						this.disabled = true;
+						//禁止修改sno
+						this.disabledSno = true;
+
+						//获取表单数据用于验证
+						this.form = this.tableData[this.index];
+
+						if (this.isEdit == true) {
+							//将当前行转为输入框
+							this.getData(this.index);
+						}
+						// else if (this.isAdd == true) {
+						// 	//获取数据,将第一行变为输入框状态
+						// 	this.getData(1);
+						// 	this.isAdd = false;
+						// }
+					}
+
+					//Submit 操作
+					//输入框操作
+					else if (row.isEditing == true) {
+						this.disabled = false;
+						//编辑
+						if (this.isEdit == true) {
+							if (index == 0 && this.pageIndex == 1 && this.isAdd != true) {
+								this.$message({
+									message: '当前数据无法进行操作',
+									type: 'warning',
+									duration: 1000
+								});
+							} else {
+								//获取当前修改行的数据,传入提交表单内
+								if (!this.isDifferent()) {
+									this.$message({
+										message: '无修改',
+										duration: 1000
+									});
+									this.tableData[this.index].isEditing = false;
+								}
+								else {
+									// this.getFormData(index);
+									this.editData();
+									this.$message({
+										message: '修改成功',
+										type: 'success',
+										duration: 1000
+									});
+								}
+								this.isEdit = false;
+								//不确定是否要重置 this.index
+								//this.index = -1;
+							}
+						}
+						//增加
+						else if (this.isAdd == true) {
+							//获取输入框的数据
+							this.getFormData(0);
+							//进行判断
+							if (this.form.sno == '') {
+								this.$message({
+									message: '添加失败！sno不可为空!',
+									type: 'error',
+									duration: 1000
+								});
+								//取消input
+								this.tableData[0].isEditing = false;
+							}
+							else {
+								this.addData();
+								this.$message({
+									message: '添加成功',
+									type: 'success',
+									duration: 1000
+								});
+							}
+							//恢复按钮
+							this.isAdd = false;
+						}
+						//重置 index
+						this.index = -1;
+					}
+				},
+				isDifferent() {
+					var res = false;
+					//有一个不一样都出发修改
+					if (this.form.sno != this.tableData[this.index].sno ||
+						this.form.sname != this.tableData[this.index].sname ||
+						this.form.certify != this.tableData[this.index].certify ||
+						this.form.titleno != this.tableData[this.index].titleno ||
+						this.form.titlename != this.tableData[this.index].titlename
+					)
+						res = true;
+					return res;
+				},
+
+				handleDeleteConfirm(index, row) {
+					if (index == 0 && this.pageIndex == 1 && this.isAdd != true) {
+						this.$message({
+							message: '当前数据无法进行操作',
+							type: 'error',
+							duration: 1000
+						});
+					}
+					else if (this.index < 0) {
+						this.handleDelete(index, row);
+					}
+					//输入框状态下点击其他行 Delete
+					else if (this.index != index) {
+						this.$message({
+							message: '请完成当前行操作',
+							type: 'error',
+							duration: 1000
+						});
+					}
+					else {
+						this.handleDelete(index, row);
+					}
+				},
+				//删除 和 取消
+				handleDelete(index, row) {
+					//其他按钮变为可用
+					this.disabled = false;
+					//输入框状态 => 取消操作 => 转为非输入框
+					if (row.isEditing == true) {
+						this.$message({
+							message: '取消修改',
+							duration: 1000
+						});
+						//Edit操作
+						this.tableData[index].isEditing = false;
+						this.getData();
+						this.isAdd = false;
+						this.isEdit = false;
+					}
+
+					//非输入框状态 => 删除操作
+					else {
+						var str = this.tableData[index].sno;
+						this.deleteData(str);
+						this.$message({
+							message: '删除成功',
+							type: 'success',
+							duration: 1000
+						});
+					}
+
+					//重置 index
+					this.index = -1;
+				},
+
+				//失去焦点时弹出进行判断
+				blurConfirm: function (index, row) {
+					// console.log('失去焦点时进行判断');
+				},
+				//取消修改时进行判断
+				cancelConfirm: function (index, row) {
+					this.getData();
+				},
+
+				//获取数据
+				getData: function (index) {
+					var that = this;
+					axios.get('https://water.hrenergy.cn/WeatherForecast/Subject', {
+						params: {
+							pageIndex: this.pageIndex,
+							pageSize: this.pageSize
+						}
+					})
+						.then(function (response) {
+							that.tableData = response.data.data;
+							that.totalDataNum = response.data.total;
+							//将表单内除 index 行的 isEditing 全置为false
+							for (var i = 1; i < that.tableData.length; ++i)
+								that.tableData[i].isEditing = false;
+							//当前行可编辑
+							if (index !== undefined)
+								that.tableData[index].isEditing = true;
+						})
+						.catch(function (error) {
+							console.log(error);
+						})
+						.then(function () {
+							// always executed
+						});
+				},
+
+				//添加数据
+				addData: function () {
+					var that = this;
+					axios.post('https://water.hrenergy.cn/WeatherForecast/AddSubject', {
+						sno: that.form.sno,
+						sname: that.form.sname,
+						certify: that.form.certify,
+						titleno: that.form.titleno,
+						titlename: that.form.titlename,
+						// sno: that.tableData[that.index].sno,
+						// sname: that.tableData[that.index].sname,
+						// certify: that.tableData[that.index].certify,
+						// titleno: that.tableData[that.index].titleno,
+						// titlename: that.tableData[that.index].titlename
+					})
+						.then(function (response) {
+							that.getData();
+						})
+						.catch(function (error) {
+							console.log(error);
+						});
+				},
+				deleteData: function (str) {
+					var that = this;
+					axios.get('https://water.hrenergy.cn/WeatherForecast/DelSubject', {
+						params: {
+							sno: str
+						}
+					})
+						.then(function (response) {
+							that.getData();
+						})
+						.catch(function (error) {
+							console.log(error);
+						})
+						.then(function () {
+							// always executed
+						});
+				},
+				editData: function () {
+					var that = this;
+					axios.post('https://water.hrenergy.cn/WeatherForecast/ModSubject', {
+						sno: that.form.sno,
+						sname: that.form.sname,
+						certify: that.form.certify,
+						titleno: that.form.titleno,
+						titlename: that.form.titlename,
+						// sno: that.tableData[that.index].sno,
+						// sname: that.tableData[that.index].sname,
+						// certify: that.tableData[that.index].certify,
+						// titleno: that.tableData[that.index].titleno,
+						// titlename: that.tableData[that.index].titlename
+					})
+						.then(function (response) {
+							that.getData();
+						})
+						.catch(function (error) {
+							console.log(error);
+						});
+				},
+				async queryData(str) {
+					var that = this;
+					await axios.get('https://water.hrenergy.cn/WeatherForecast/QuerySubject', {
+						params: {
+							sname: str
+						}
+					})
+						.then(function (response) {
+							that.queryResults = response.data;
+						})
+						.catch(function (error) {
+							console.log(error);
+						})
+						.then(function () {
+							// always executed
+						});
+				},
+				getFormData: function (index) {
+					this.form.sno = this.tableData[index].sno;
+					this.form.sname = this.tableData[index].sname;
+					this.form.certify = this.tableData[index].certify;
+					this.form.titleno = this.tableData[index].titleno;
+					this.form.titlename = this.tableData[index].titlename;
+				},
+				addFormData: function () {
+					this.form.sno = '';
+					this.form.sname = '';
+					this.form.certify = '';
+					this.form.titleno = '';
+					this.form.titlename = '';
+				},
+
+				//删除全部
+				open: function () {
+					var that = this;
+					this.$confirm('此操作将删除所有大哥, 是否继续?', '提示', {
+						confirmButtonText: '确定',
+						cancelButtonText: '取消',
+						type: 'warning'
+					}).then(() => {
+						this.$message({
+							type: 'success',
+							message: '删除成功!'
+						});
+						that.deleteAllData();
+					}).catch(() => {
+						this.$message({
+							type: 'info',
+							message: '已取消删除'
+						});
+					});
+				},
+
+				//一键删除修改中
+				deleteAllData: function () {
+					changePageSize()
+					console.log(this.pageSize);
+					this.getData();
+					console.log('this.tableData.length:' + this.tableData.length);
+					//获取数据 
+					this.pageSize = '10';
+					this.getData();
+				},
+
+				//服务端调用数据
+				async querySearch(queryString, cb) {
+					await this.queryData(queryString);
+					var queryResults = this.queryResults;
+					var results = queryString ? queryResults.filter(this.createStateFilter(queryString)) : queryResults;
+					clearTimeout(this.timeout);
+					this.timeout = setTimeout(() => {
+						cb(results);
+					}, 3000 * Math.random());
+				},
+				createStateFilter(queryString) {
+					return (states) => {
+						return (states.sname.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+					};
+				},
+				handleSelect(item) {
+					this.pageSize = this.totalDataNum;
+					this.getData();
+					this.search = item.sname;
+				},
+			},
+			created() {
+				this.getData();
+				this.welcome_();
+			}
+		})
+	</script>
+</body>
+
+</html>

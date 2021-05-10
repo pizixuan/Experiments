@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RB</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <el-form :model="form" status-icon :rules="rules" ref="form" class="demo-ruleForm">
+            <!-- <el-table
+                :data="tableData.filter(tableData => !search || tableData.sname.toLowerCase().includes(search.toLowerCase()))"
+                :filter-method="handleFliter" style="width: 100%"> -->
+            <el-table
+                :data="tableData.filter(tableData => !search || tableData.sname.toLowerCase().includes(search.toLowerCase()))"
+                style="width: 100%">
+                <el-table-column label="sno">
+                    <template slot-scope="scope">
+                        <el-form-item prop="sno" v-if="scope.row.isInput">
+                            <el-input v-model="form.sno" :disabled="disabledSno" />
+                            </el-input>
+                        </el-form-item>
+                        <span v-else>{{ scope.row.sno }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="sname">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="sname">
+                                <el-input v-model="form.sname" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.sname }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="certify">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="certify">
+                                <el-input v-model="form.certify" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.certify }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="titleno">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="titleno">
+                                <el-input v-model="form.titleno" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.titleno }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="titlename">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.isInput">
+                            <el-form-item prop="titlename">
+                                <el-input v-model="form.titlename" />
+                                </el-input>
+                            </el-form-item>
+                        </span>
+                        <span v-else>{{ scope.row.titlename }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column align="right">
+                    <template slot="header" slot-scope="scope">
+                        <el-autocomplete v-model="state" :fetch-suggestions="querySearch" placeholder="请输入Sname进行查找"
+                            :trigger-on-focus="false" value-key="sname" @select="handleSelect">
+                        </el-autocomplete>
+                    </template>
+
+                    <template slot-scope="scope">
+                        <el-form-item>
+                            <el-button size="mini" @click="editOrSubmit(scope.$index, 'form')">
+                                <!-- 编辑 -->
+                                <span v-if="!scope.row.isInput">Edit</span>
+                                <!-- 提交 -->
+                                <span v-else>Submit</span>
+                            </el-button>
+                            <el-button size="mini" type="danger" @click="deleteOrCancel(scope.$index, 'form')">
+                                <!-- 删除 -->
+                                <span v-if="!scope.row.isInput">Delete</span>
+                                <!-- 取消 -->
+                                <span v-else>Cancel</span>
+                            </el-button>
+                        </el-form-item>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+
+            <div class="block">
+                <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                    :current-page="currentPage" :page-sizes="[10, 20, 30, 40]" :page-size="100"
+                    layout="total, sizes, prev, pager, next, jumper" :total=totalDataNum>
+                </el-pagination>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <div style="float: left">
+                    <el-form-item>
+                        <el-button type="primary" @click="handleAdd()">添加数据</el-button>
+                    </el-form-item>
+                </div>
+                <div style="float:left;margin-left:15px">
+                    <el-upload class="upload-demo" ref="upload" action="https://api.dreamwithme.cn/user/upload"
+                        :on-preview="handlePreview" :on-remove="handleRemove" :on-success="uploadSuccess"
+                        :on-error="uploadError" :file-list="fileList" :auto-upload="false"
+                        :before-remove="beforeRemove">
+                        <el-button slot="trigger" type="primary" :disabled="disabledButton">选取文件</el-button>
+                        <el-button style="margin-left: 10px;" type="success" @click="submitUpload"
+                            :disabled="disabledButton">
+                            上传到服务器
+                        </el-button>
+                        <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+                    </el-upload>
+                </div>
+            </div>
+        </el-form>
+    </div>
+    <script src="../rebuild/backup.js"></script>
+</body>
+
+</html>

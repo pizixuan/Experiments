@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Email</string>
+    <string-array name="user_data">UserData
+        <item>tom</item>
+        <item>jack</item>
+        <item>bob</item>
+    </string-array>
+
+</resources>
